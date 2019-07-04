@@ -1,0 +1,304 @@
+---
+title: "TrekBookClub"
+author: "Clara Boothby"
+date: "May 23, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Import data and modules
+
+```{r}
+
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(gridExtra)
+cb_palette = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#e6d600", "#0072B2", "#D55E00") # extra"#CC79A7"
+cb_palette = rev(cb_palette)
+
+#original yellow
+#F0E442
+#modified
+#d4c711
+#e6d600
+
+```
+```{r}
+
+trek.raw = read.csv("data/trek.csv")
+trek = trek.raw
+
+#Add useful columns for graphing
+trek$year_month = parse_date(as.character(trek$year_month), "%Y-%m")
+trek$Series_full = recode(trek$Series, "DS9" = "Deep Space Nine", "DSC" = "Discovery", "ENT" = "Enterprise", "TNG" = "The Next Generation", "TOS" = "The Original Series", "VGR" = "Voyager")
+
+#adding average scores
+
+trek$avg0 = trek$A*3 + trek$B*2 + trek$C*1 + trek$D*0
+trek$avg1 = trek$A*4 + trek$B*3 + trek$C*2 + trek$D*1
+
+trek.long = gather(trek, key = "grade", value = "proportion", c("A", "B", "C", "D"))
+
+summary(trek)
+
+```
+
+Distribution of series novels
+```{r}
+
+#trek$Series_full = fct_rev(factor(trek$Series_full, levels = c("The Original Series", "The Next Generation", "Deep Space Nine", "Voyager", "Enterprise", "Discovery", "Unaffiliated")))
+trek$Series_full = factor(trek$Series_full, levels = c("The Original Series", "The Next Generation", "Deep Space Nine", "Voyager", "Enterprise", "Discovery", "Unaffiliated"))
+
+ggplot(trek, aes(x = as_factor(Series_full), fill = Series_full)) +
+  geom_bar(stat = "count", color = "#000000", size = 1) +
+  geom_text(stat = "count", aes(label=..count..), hjust = -1.2) +
+  coord_flip() + 
+  scale_x_discrete(limits = rev(levels(trek$Series_full))) +
+  scale_fill_manual(values = cb_palette) + 
+  theme_light() + 
+  labs(title = "Novels #TrekBookClub read from each series",
+       fill = "Series",
+       y = "Number of Novels",
+       x = NULL) +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 12),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "none")
+
+#ggsave("Series_count.png", width = 7,height = 6, dpi = 300)
+
+```
+
+
+Change in number of votes over time
+```{r}
+#cbr_palette = rev(cb_palette)
+trek.dsc = trek
+trek.dsc$dsc = ifelse(trek.dsc$Series == "DSC", "DSC", NA)
+trek.dsc$ds9 = ifelse(trek.dsc$Series == "DS9", "DS9", NA)
+
+#When looking at the different series
+ggplot(trek.dsc, aes(x = year_month, y = n_votes, label = dsc)) +
+  geom_point(aes(fill = Series_full), size = 4, pch = 21)+
+  geom_smooth(se = FALSE,  method = "lm", color = "black", size = .5)+
+  geom_text(aes(label=dsc),hjust=1.15, vjust=-.25) +
+  scale_fill_manual(values = cb_palette) +
+  theme_light() + 
+  labs(title = "Number of voters in #TrekBookClub polls over time",
+       subtitle = "Line represents inferred linear relationship between date and voters",
+       fill = "Series",
+       y = "Number of Voters",
+       x = "Date") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+#ggsave("Voter_time_DSC.png", width = 10,height = 6, dpi = 300)
+
+```
+
+For this plot:
+1. figure out how to do consistent colors with the other graphs :(
+2. try to color the background by series with black points for novels. Can this extend over the labels?
+3. do vertical lines for each series' average score. make the vertical lines only as long as the series
+4. think about removing x-axis ticks--the scale itself doesn't mean anything since it's an average....
+
+
+```{r}
+o = order(fct_rev(trek$Series_full), trek$avg0)
+trek$Title = factor(trek$Title, levels = trek$Title[o])
+
+ggplot(trek, aes(x = avg0, y = Title, fill = Series_full)) + geom_point(size = 4, pch=21) + 
+  geom_vline(xintercept = mean(trek$avg0), linetype = "dashed", color = "#999999")+
+  scale_fill_manual(values = cb_palette) + 
+  theme_light() + 
+  labs(title = "Average score for each novel, grouped by series",
+       subtitle = "Dashed vertical line indicates average for all novels ",
+       fill = "Series",
+       y = NULL,
+       x = "Weighted average score") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank()
+        )
+
+ggsave("Title_average_score.png", width = 10,height = 6, dpi = 300)
+
+```
+No corellation between page number and average
+```{r}
+
+ggplot(trek, aes(x = Publication, y = avg1)) + geom_point() + geom_smooth(se = FALSE)
+
+```
+
+
+I really need to figure this out
+1. Try to cleanly infer the raw numbers of voters who gave each score based on the proportion. It's mostly there, but I hope I can get it to add up to one for real!
+
+```{r}
+o = order(trek$avg0)
+trek.long$Title = factor(trek.long$Title, levels = trek$Title[o]) 
+trek.long$inf_votes = round(trek.long$proportion*trek.long$n_votes)
+trek.long$rnd_prop = trek.long$inf_votes/trek.long$n_votes
+
+#ggplot(trek.long, aes(x = year_month, y = proportion, fill = grade)) + geom_col() +
+#  scale_fill_viridis_d(direction = -1) +
+#  theme_light()
+
+ggplot(trek.long, aes(x = Title, y = rnd_prop, fill = grade)) + geom_col() + 
+  coord_flip() + 
+  scale_fill_viridis_d(direction = -1) + 
+  theme_light() +
+  labs(title = "Proportion of votes for each grade, ordered by average score",
+       fill = "Grade",
+       x = NULL,
+       y = "Proportion") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+  
+#ggsave("Title_average_score_stacked.png", width = 10,height = 6, dpi = 300)
+```
+
+```{r}
+ggplot(trek.long, aes(x = Title, y = inf_votes, fill = grade)) + geom_col() + 
+  coord_flip() + 
+  scale_fill_viridis_d(direction = -1) + 
+  theme_light() +
+  labs(title = "Votes for novel grades, ordered by average score",
+       fill = "Grade",
+       x = NULL,
+       y = "# of votes") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+  
+#ggsave("Title_average_score_stacked_votes.png", width = 10,height = 6, dpi = 300)
+```
+
+Needs to be made look nice
+* put the range of dates under each bar
+```{r}
+
+ggplot(trek, aes(x = Publication)) + geom_histogram(breaks = c(1985,1990,1995,2000,2005,2010,2015,2020), fill = "#0072B2") +
+  scale_y_continuous(breaks = c(2,4,6,8,10,12)) +
+  theme_light()+
+  labs(title = "Publication dates of #TrekBookClub picks",
+       x = "Publication date",
+       y = "# of Books") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+#ggsave("publication_hist.png", width = 10,height = 6, dpi = 300)
+
+```
+
+```{r}
+
+```
+
+For selected books in general, the number of votes is pretty similar to books that are voted for
+For books selected with patreon involvement, the number of voters is close to the average number of voters or above average (of course there were only 3 books)
+
+to do:
+put in the linear model of the growth of the number of voters rather than using a smoother that only captures the points in the facets!
+```{r}
+
+ggplot(trek, aes(x = year_month, y = n_votes)) + geom_point(aes(fill = Series_full), size = 4, pch = 21) +
+  geom_smooth(method = "lm", se = FALSE) + #if loess, span = 2
+  facet_wrap(~Selection) + 
+  #facet_wrap(~Patreon) +
+  #geom_hline(yintercept = mean(trek$n_votes), linetype = "dashed", color = "#999999") +
+  scale_fill_manual(values = cb_palette) +
+  theme_light()+
+  labs(title = "Number of voters in #TrekBookClub novel polls",
+       subtitle = "Faceted by whether the novel was chosen via vote or selected",
+       fill = "Series",
+       y = "Average",
+       x = "number of votes") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+#ggsave("selected_n_voters.png", width = 10,height = 6, dpi = 300)
+
+```
+
+For selected books in general, the average scores are pretty similar to books that are voted for
+For books selected with patreon involvement, the average score is close to the average or waay above average. Except for Choice of Futures, which was terrible! (of course there were only 3 books)
+
+```{r}
+
+ggplot(trek, aes(x = year_month, y = avg0, fill = Series_full)) + geom_point(size = 4, pch = 21) + 
+  facet_wrap(~Selection) +
+  #facet_wrap(~Patreon) + 
+  geom_hline(yintercept = mean(trek$avg0), linetype = "dashed", color = "#999999")+
+  scale_fill_manual(values = cb_palette) + 
+  theme_light() + 
+  labs(title = "Average score for each novel",
+       subtitle = "Faceted by whether the novel was chosen via vote or selected",
+       fill = "Series",
+       y = "Average",
+       x = "number of votes") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+#ggsave("selected_average_score.png", width = 10,height = 6, dpi = 300)
+
+```
+
+this is just checking if the number of votes potentially skews the proportions of people giving each score. For the most part, it doesn't look like there's much of a correlation with each letter grade and the number of votes! This is good. 
+There's a negative correlation with C grades, but I'll have to figure out some statistical test to see if that's real or not. There are very few books that have gottn over 50 votes, so the small proportion of Cs in the three most highly voted for novels may be dragging the lm down on the right
+```{r}
+
+ggplot(trek.long, aes(x = n_votes, y = proportion)) + geom_point() + 
+  geom_smooth(method = "lm") + 
+  facet_wrap(~grade) + 
+  theme_light() + 
+  labs(title = "Proportion of votes for each grade against the number of voters",
+       subtitle = "Nearly horizontal best fit lines indicate little to no correlation",
+       y = "Proportion",
+       x = "Number of votes") +
+  theme(plot.title = element_text(size = 14),
+        text = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12))
+
+ggsave("Grade_correlations-NOT.png", width = 10,height = 6, dpi = 300)
+
+```
