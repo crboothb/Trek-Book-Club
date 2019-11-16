@@ -2,7 +2,9 @@
 title: "TrekBookClub"
 author: "Clara Boothby"
 date: "May 23, 2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -137,7 +139,7 @@ ggplot(trek, aes(x = avg0, y = Title, fill = Series_full)) + geom_point(size = 4
         panel.grid.minor.x = element_blank()
         )
 
-ggsave("Title_average_score.png", width = 10,height = 6, dpi = 300)
+#ggsave("Title_average_score.png", width = 10,height = 6, dpi = 300)
 
 ```
 No corellation between page number and average
@@ -299,6 +301,6 @@ ggplot(trek.long, aes(x = n_votes, y = proportion)) + geom_point() +
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12))
 
-ggsave("Grade_correlations-NOT.png", width = 10,height = 6, dpi = 300)
+#ggsave("Grade_correlations-NOT.png", width = 10,height = 6, dpi = 300)
 
 ```
