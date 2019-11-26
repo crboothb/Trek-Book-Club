@@ -38,7 +38,7 @@ Proposed visualizations:
 * plot of average score of each novel, when each vote for an A, B, C, or D, is counted as 3,2,1, and 0 respectively. Inclusion of some indication of the number of votes cast for normalization purposes--> Do these averages capture enough information about how the community felt about each novel? Reflect on whether there is info in the stacked bar, that doesn't show up in the averages. --DONE (It'll do, but how the average was generated will have to be explained in a caption. Maybe ask Rob what he thinks about using the average)
 * plot of average score of novel against publication date. Is this a productive variable? --DONE, and no, it's not
 * plot of average score of novel against number of pages. Is this a productive variable? --DONE, and no, it's not
-* plots of average score and number of voters faceted by whether the novel was selected or voted for --DONE, no major differences at ALL in scores. Steeper slope for selected novels may well be due to outliers (The Way to the Stars (Fricking Una McCormack! XD ) at the high end, and the very first 2 novels back when the club was just starting on the low end)
+* plots of average score and number of voters faceted by whether the novel was selected or voted for --DONE, no major differences at ALL in scores. Steeper slope for selected novels may well be due to outliers (The Way to the Stars at the high end, and the very first 2 novels back when the club was just starting on the low end)
 
 Continuing issues:
 * different novels have very different numbers of voters. This means they also could also have differences in the significance of the composite scores. (Need to reopen statistics notes :/ )
