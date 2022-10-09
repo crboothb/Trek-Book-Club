@@ -1,8 +1,10 @@
 #TrekBookClub Exploratory Visualizations!
 
+one year later...
+
 What is Trek Book Club
 	generally, it's a positive space on Twitter for the overlap in the venn diagram of book enthusiasts and Star Trek enthusiasts. 
-	We are trekkies who have been reading and watching star trek since childhood, people who've only gotten into trek in the past few years, people who know every detail of trivia (people who read "Lurian" in the recent Enterprise War, and knew immediately what species that was--Morn is a Lurian!), and people who know the main characters and some episodes and that's it and everything in between. We're from several different countries. This also means that the club runs from... 3 or 4 AM my time all the way into the night in long, fun marathons.
+	We are trekkies who have been reading and watching star trek since childhood, people who've only gotten into trek in the past few years, people who know every detail of trivia, and people who know the main characters and some episodes and that's it and everything in between. We're from several different countries. This also means that the club runs from... 3 or 4 AM my time all the way into the night in long, fun marathons.
 	Personally, I've liked and watched Star Trek TNG since college, but I've only seen the other series in the past few years, when I met Gregg. Before TrekBookClub, I'd never picked up a Star Trek novel. I'm also not entirely sure I would without the club, but who knows! As it is, a trek book a month on top of my other obligations is probably more than enough
 
 From the beginning, @TrekkieRob has been gathering the stats from each of #TrekBookClub's polls, and it's all freely available here. 
@@ -47,5 +49,4 @@ When comparing the number of participants for selected vs. voted novels, it init
 
 I also checked for a correlations between score and novel length (in number of pages) or publication date, but those looked so unimpressive they weren't worth publishing.
 
-Anyway, let me know if you any questions about any of these graphs. I'm really please with myself and want to talk about it.
-And if you'd like to see the code, I'd be happy to send it to you.
+Anyway, let me know if you any questions about any of these graphs. All the code is also freely available on Github
